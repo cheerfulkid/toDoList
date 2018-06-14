@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+	<meta charset="UTF-8">
+	<title>好天氣備忘錄</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<link rel="icon" type="image/png" href="icon.png" sizes="16x16">
+	<style>
+		body {
+			background: #f7fcff;
+			margin: 0;
+			padding: 0;
+			font: normal normal 20px/1.5 '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+		}
+		img {
+			max-width: 100%;
+		}
+		html, body {
+			height: 100%;
+		}
+		.flexbox {
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.rightPlace {
+			display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    max-width: 450px;
+		    flex-wrap: wrap;
+		}
+		input[type="text"] {
+		    height: 40px;
+		    border: 1px solid #ccc;
+		    border-radius: 20px;
+		    font-size: 20px;
+		    width: 65%;
+		    padding: 0 10px;
+		    box-sizing: border-box;
+		    font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+		}
+		button {
+			border: none;
+		    background: gold;
+		    line-height: 40px;
+		    font-size: 20px;
+		    font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+	        border: 1px solid #FFC107;
+		}
+		.list {
+		    width: 100%;
+    		list-style: none;
+    		padding: 0;
+		}
+		.list li {
+		    padding-bottom: 5px;
+		    border-bottom: 1px solid #666;
+		    margin-bottom: 10px;
+		}
+		.delete {
+		    margin: 0 10px 0 0;
+		    text-decoration: none;
+		    border-bottom: 1px solid;
+		    color: red;
+		}
+		.pdlr10 {
+			padding: 0 10px;
+		}
+		@media (max-width: 1440px) {
+			.flexbox {
+			    flex-direction: column;
+			    margin-bottom: 200px;
+			    position: relative;
+			    top: -100px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="flexbox pdlr10">
+		<img src="pasture.png" alt="">
+		<div class="rightPlace">
+			<input type="text">
+			<button>加入待辦</button>
+			<ul class="list">
+			</ul>
+		</div>
+	</div>
+	<script>
+		// 指定 dom
+		var list = document.querySelector('.list');
+		var sendData = document.querySelector('button');
+		var data = JSON.parse(localStorage.getItem('listData')) || []; // 從 localStorage 撈取 string 值後轉換成 array 或者是沒有值的話就給一個空陣列
+
+		// 監聽與更新
+		sendData.addEventListener('click', addData); // 當觸發點擊加入待辦時執行的動作
+		list.addEventListener('click',toggleDone); // 當觸發點擊列表中的刪除時執行的動作
+		updateList(data);
+
+		// 加入列表，並同步更新網頁與 localstorage
+		function addData(e) { 
+			var txt = document.querySelector('input').value;
+			var todo = {
+				content: txt
+			};
+			data.push(todo); // 添加資料到陣列物件中
+			updateList(data); // 更新網頁
+			localStorage.setItem('listData', JSON.stringify(data)); // 將陣列物件 array 轉換成字串 string ，並更新 localstorage
+		}
+
+		// 更新網頁內容
+		function updateList(items) {
+			var str = '';
+			var len = items.length;
+			for (var i = 0; len > i; i++) {
+				str +='<li><a href="#" class="delete" data-index=' + i + ' />刪除</a><span>' + items[i].content + '</span></li>';
+			}
+			list.innerHTML = str;
+		}
+
+		// 刪除代辦事項
+		function toggleDone(e) { // 參數 e 代表觸發什麼的事件
+			e.preventDefault(); // 防止預設行為 # 點選後跳到頁面最上方
+			if(e.target.tagName !== 'A') { return }; // tagName 跟 nodeName 一樣 (點擊 .list 的子節點不是 a 時)
+			var index = e.target.dataset.index; // 若點擊 .list 的子節點是 a 時獲取其 data-index 的值
+			data.splice(index, 1); // 被選中的項目, 刪除該項目(包含後面)共有幾項
+			updateList(data); // 更新網頁
+			localStorage.setItem('listData', JSON.stringify(data)); // 將陣列物件 array 轉換成字串 string ，並更新 localstorage			
+		}
+	</script>
+</body>
+</html>
